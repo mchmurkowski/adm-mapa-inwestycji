@@ -1,6 +1,8 @@
 # Mapa inwestycji miejskich
 
-Wspólny projekt [Analityków Danych Miejskich](https://danemiejskie.pl/).
+Wspólny projekt w ramch [Sieci Analityków Danych Miejskich](https://danemiejskie.pl/).
+
+[Zobacz webmapę](https://mchmurkowski.github.io/adm-mapa-inwestycji/)
 
 ## Generator danych testowych
 
