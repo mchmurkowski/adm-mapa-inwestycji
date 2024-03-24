@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="css/leaflet.css">
+    <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="css/MarkerCluster.css">
+        <link rel="stylesheet" href="css/MarkerCluster.Default.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+    <link rel="stylesheet"  href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <style>
+        #map {
+            width: auto; /* default: 1153px */
+            height: 86vh; /* default: 627px = 852px */
+        }
+    </style>
+    <title>Mapa inwestycji miejskich w Siemianowicach Śląskich</title>
+</head>
+<body>
+    <section class="hero is-medium">
+        <div class="hero-body">
+            <div class="columns is-vcentered">
+                <div class="column is-one-quarter has-text-right">
+                    <h2 class="subtitle">Siemianowice Śląskie</h2>
+                    <h1 class="title is-uppercase">Mapa inwestycji</h1>
+                </div>
+                <div class="column">
+                    <nav class="level">
+                        <div class="level-item has-text-centered">
+                            <div>
+                                <p class="heading">Liczba inwestycji</p>
+                                <p class="title"><span id="l-inw"></span></p>
+                            </div>
+                        </div>
+                        <div class="level-item has-text-centered">
+                            <div>
+                                <p class="heading">Wartość inwestycji</p>
+                                <p class="title"><span id="w-inw"></span> mln PLN</p>
+                            </div>
+                        </div>
+                        <div class="level-item has-text-centered">
+                            <div>
+                                <p class="heading">Pozyskane dofinansowanie</p>
+                                <p class="title"><span id="d-inw"></span> mln PLN</p>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div class="content has-text-centered">
+            <a class="button is-primary" href="#map-section">Przejdź do mapy &#9660;</a>
+        </div>
+    </section>
+    <section class="section" id="map-section">
+        <div class="container is-fluid" id="map">
+        </div>
+    </section>
+    <footer class="footer">
+        <div class="columns is-vcentered">
+            <div class="column is-half has-text-right">
+                <h2 class="subtitle">Siemianowice Śląskie</h2>
+                <h1 class="title is-uppercase">Mapa inwestycji</h1>
+            </div>
+            <div class="column">
+                <nav>
+                    <ul>
+                        <li><a href="https://siemianowice.pl">Siemianowice Śląskie</a></li>
+                        <li><a href="https://siemianowice.geoportal2.pl">Geoportal</a></li>
+                        <li><a href="https://bip.msiemianowicesl.finn.pl">BIP</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="content has-text-centered is-size-7">
+            <p>Wykonano w ramach wspólnego projektu <a href="https://danemiejskie.pl/">Sieci Analityków Danych Miejskich</a></p>
+        </div>
+    </footer>
+        <script src="js/qgis2web_expressions.js"></script>
+    <script src="js/leaflet.js"></script>
+        <script src="js/multi-style-layer.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+    <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+    <script src="js/leaflet.markercluster.js"></script>
+        <script src="data/Granicegminy_1.js"></script>
+        <script src="data/Inwestycje_2.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:12
+        })
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        document.querySelector(".leaflet-popup-pane").addEventListener("load", function(event) {
+          var tagName = event.target.tagName,
+            popup = map._popup;
+          // Also check if flag is already set.
+          if (tagName === "IMG" && popup && !popup._updated) {
+            popup._updated = true; // Set flag to prevent looping.
+            popup.update();
+          }
+        }, true);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            if (bounds_group.getLayers().length) {
+                map.fitBounds(bounds_group.getBounds());
+            }
+        }
+        map.createPane('pane_Podkadmapowy_0');
+        map.getPane('pane_Podkadmapowy_0').style.zIndex = 400;
+        var layer_Podkadmapowy_0 = L.tileLayer('https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+            pane: 'pane_Podkadmapowy_0',
+            opacity: 1.0,
+            attribution: '<a href="https://cartodb.com/basemaps/">Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.</a>',
+            minZoom: 12,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_Podkadmapowy_0;
+        map.addLayer(layer_Podkadmapowy_0);
+        function pop_Granicegminy_1(feature, layer) {
+            var popupContent = '<table>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Granicegminy_1_0() {
+            return {
+                pane: 'pane_Granicegminy_1',
+                opacity: 1,
+                color: 'rgba(255,209,255,0.30196078431372547)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 5.0, 
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        function style_Granicegminy_1_1() {
+            return {
+                pane: 'pane_Granicegminy_1',
+                opacity: 1,
+                color: 'rgba(204,25,255,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Granicegminy_1');
+        map.getPane('pane_Granicegminy_1').style.zIndex = 401;
+        map.getPane('pane_Granicegminy_1').style['mix-blend-mode'] = 'normal';
+        var layer_Granicegminy_1 = new L.geoJson.multiStyle(json_Granicegminy_1, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Granicegminy_1',
+            layerName: 'layer_Granicegminy_1',
+            pane: 'pane_Granicegminy_1',
+            onEachFeature: pop_Granicegminy_1,
+            styles: [style_Granicegminy_1_0,style_Granicegminy_1_1,]
+        });
+        bounds_group.addLayer(layer_Granicegminy_1);
+        map.addLayer(layer_Granicegminy_1);
+        function pop_Inwestycje_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['foto_sciezka'] !== null ? '<img src="images/' + String(feature.properties['foto_sciezka']).replace(/[\\\/:]/g, '_').trim() + '">' : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['kategoria'] !== null ? autolinker.link(feature.properties['kategoria'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nazwa'] !== null ? autolinker.link(feature.properties['nazwa'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['zakres'] !== null ? autolinker.link(feature.properties['zakres'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Adres</th>\
+                        <td class="visible-with-data" id="adres">' + (feature.properties['adres'] !== null ? autolinker.link(feature.properties['adres'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Data rozpoczęcia</th>\
+                        <td class="visible-with-data" id="data_rozpoczecia">' + (feature.properties['data_rozpoczecia'] !== null ? autolinker.link(feature.properties['data_rozpoczecia'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Data zakończenia</th>\
+                        <td class="visible-with-data" id="data_zakonczenia">' + (feature.properties['data_zakonczenia'] !== null ? autolinker.link(feature.properties['data_zakonczenia'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Wartość [PLN]</th>\
+                        <td class="visible-with-data" id="wartosc">' + (feature.properties['wartosc'] !== null ? autolinker.link(feature.properties['wartosc'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Źródło dofinansowania</th>\
+                        <td class="visible-with-data" id="zrodlo_dofinansowania">' + (feature.properties['zrodlo_dofinansowania'] !== null ? autolinker.link(feature.properties['zrodlo_dofinansowania'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Wartość dofinansowania [PLN]</th>\
+                        <td class="visible-with-data" id="wartosc_dofinansowania">' + (feature.properties['wartosc_dofinansowania'] !== null ? autolinker.link(feature.properties['wartosc_dofinansowania'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Edycja BO</th>\
+                        <td class="visible-with-data" id="edycja_bo">' + (feature.properties['edycja_bo'] !== null ? autolinker.link(feature.properties['edycja_bo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['popup_url_html'] !== null ? autolinker.link(feature.properties['popup_url_html'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Inwestycje_2_0(feature) {
+            switch(String(feature.properties['kategoria'])) {
+                case 'administracja':
+                    return {
+                pane: 'pane_Inwestycje_2',
+                radius: 5.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(216,116,219,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'dostępność':
+                    return {
+                pane: 'pane_Inwestycje_2',
+                radius: 5.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(86,161,227,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'infrastruktura':
+                    return {
+                pane: 'pane_Inwestycje_2',
+                radius: 5.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(233,122,26,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'kultura, sport i rekreacja':
+                    return {
+                pane: 'pane_Inwestycje_2',
+                radius: 5.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(59,203,54,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'ochrona środowiska':
+                    return {
+                pane: 'pane_Inwestycje_2',
+                radius: 5.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(135,237,208,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'oświata':
+                    return {
+                pane: 'pane_Inwestycje_2',
+                radius: 5.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(216,110,140,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'transport':
+                    return {
+                pane: 'pane_Inwestycje_2',
+                radius: 5.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(169,211,15,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Inwestycje_2');
+        map.getPane('pane_Inwestycje_2').style.zIndex = 402;
+        map.getPane('pane_Inwestycje_2').style['mix-blend-mode'] = 'normal';
+        var layer_Inwestycje_2 = new L.geoJson(json_Inwestycje_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Inwestycje_2',
+            layerName: 'layer_Inwestycje_2',
+            pane: 'pane_Inwestycje_2',
+            onEachFeature: pop_Inwestycje_2,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Inwestycje_2_0(feature));
+            },
+        });
+        var cluster_Inwestycje_2 = new L.MarkerClusterGroup({showCoverageOnHover: false,
+            spiderfyDistanceMultiplier: 2});
+        cluster_Inwestycje_2.addLayer(layer_Inwestycje_2);
+
+        bounds_group.addLayer(layer_Inwestycje_2);
+        cluster_Inwestycje_2.addTo(map);
+            var title = new L.Control();
+            title.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'info');
+                this.update();
+                return this._div;
+            };
+            title.update = function () {
+                this._div.innerHTML = '<h2>Mapa inwestycji miejskich w Siemianowicach Śląskich</h2>';
+            };
+            title.addTo(map);
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'Inwestycje<br /><table><tr><td style="text-align: center;"><img src="legend/Inwestycje_2_administracja0.png" /></td><td>administracja</td></tr><tr><td style="text-align: center;"><img src="legend/Inwestycje_2_dostępność1.png" /></td><td>dostępność</td></tr><tr><td style="text-align: center;"><img src="legend/Inwestycje_2_infrastruktura2.png" /></td><td>infrastruktura</td></tr><tr><td style="text-align: center;"><img src="legend/Inwestycje_2_kulturasportirekreacja3.png" /></td><td>kultura, sport i rekreacja</td></tr><tr><td style="text-align: center;"><img src="legend/Inwestycje_2_ochronaśrodowiska4.png" /></td><td>ochrona środowiska</td></tr><tr><td style="text-align: center;"><img src="legend/Inwestycje_2_oświata5.png" /></td><td>oświata</td></tr><tr><td style="text-align: center;"><img src="legend/Inwestycje_2_transport6.png" /></td><td>transport</td></tr></table>': cluster_Inwestycje_2,'<img src="legend/Granicegminy_1.png" /> Granice gminy': layer_Granicegminy_1,"Podkład mapowy": layer_Podkadmapowy_0,},{collapsed:false}).addTo(map);
+        setBounds();
+        </script>
+    <script>
+        // for calculating and displaying values in the level
+        const frs = json_Inwestycje_2["features"]   // features of the point layer
+        document.getElementById('l-inw').innerText += frs.length    // calculate the number of features, display them in #l-inw
+        let wInw = 0
+        for(const fr in frs)
+            wInw += frs[fr].properties.wartosc  // calculate the total value 'wartosc' of all features
+        let dInw = 0
+        for(const fr in frs)
+            dInw += frs[fr].properties.wartosc_dofinansowania   // calculate the total value of aid received 'wartosc_dofinanswoania' of all features
+        document.getElementById("w-inw").innerText += (wInw/100000).toFixed(1)  // display the total value in #w-inw in billion zlotys
+        document.getElementById("d-inw").innerText += (dInw/100000).toFixed(1)  // display the total value of aid in #d-inw in billion zlotys
+    </script>
+</body>
+</html>

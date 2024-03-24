@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    @CSSADDRESS@
+    @EXTRACSS@
+    @LEAFLET_CLUSTERCSS@
+    @LEAFLET_LAYERSEARCHCSS@
+    @LEAFLET_LAYERFILTERCSS@
+    @LEAFLET_ADDRESSCSS@
+    @LEAFLET_MEASURECSS@
+    @OL3_BACKGROUNDCOLOR@
+    @OL3_GEOCODINGLINKS@
+    @OL3_MEASURESTYLE@
+    <link rel="stylesheet"  href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <style>
+        #map {
+            width: auto; /* default: @MAP_WIDTH@ */
+            height: 86vh; /* default: @MAP_HEIGHT@ = 852px */
+        }
+    </style>
+    <title>@PAGETITLE@</title>
+</head>
+<body>
+    <section class="hero is-medium">
+        <div class="hero-body">
+            <div class="columns is-vcentered">
+                <div class="column is-one-quarter has-text-right">
+                    <h2 class="subtitle">Siemianowice Śląskie</h2>
+                    <h1 class="title is-uppercase">Mapa inwestycji</h1>
+                </div>
+                <div class="column">
+                    <nav class="level">
+                        <div class="level-item has-text-centered">
+                            <div>
+                                <p class="heading">Liczba inwestycji</p>
+                                <p class="title"><span id="l-inw"></span></p>
+                            </div>
+                        </div>
+                        <div class="level-item has-text-centered">
+                            <div>
+                                <p class="heading">Wartość inwestycji</p>
+                                <p class="title"><span id="w-inw"></span> mln PLN</p>
+                            </div>
+                        </div>
+                        <div class="level-item has-text-centered">
+                            <div>
+                                <p class="heading">Pozyskane dofinansowanie</p>
+                                <p class="title"><span id="d-inw"></span> mln PLN</p>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div class="content has-text-centered">
+            <a class="button is-primary" href="#map-section">Przejdź do mapy &#9660;</a>
+        </div>
+    </section>
+    <section class="section" id="map-section">
+        <div class="container is-fluid" id="map">
+            @OL3_POPUP@
+        </div>
+    </section>
+    <footer class="footer">
+        <div class="columns is-vcentered">
+            <div class="column is-half has-text-right">
+                <h2 class="subtitle">Siemianowice Śląskie</h2>
+                <h1 class="title is-uppercase">Mapa inwestycji</h1>
+            </div>
+            <div class="column">
+                <nav>
+                    <ul>
+                        <li><a href="https://siemianowice.pl">Siemianowice Śląskie</a></li>
+                        <li><a href="https://siemianowice.geoportal2.pl">Geoportal</a></li>
+                        <li><a href="https://bip.msiemianowicesl.finn.pl">BIP</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="content has-text-centered is-size-7">
+            <p>Wykonano w ramach wspólnego projektu <a href="https://danemiejskie.pl/">Sieci Analityków Danych Miejskich</a></p>
+        </div>
+    </footer>
+    @EXP_JS@
+    @OL3_PROJ4@
+    @OL3_PROJDEF@
+    @JSADDRESS@
+    @LEAFLET_EXTRAJS@
+    @LEAFLET_ADDRESSJS@
+    @LEAFLET_MEASUREJS@
+    @LEAFLET_CRSJS@
+    @OL3_LAYERSWITCHER@
+    @OL3_GEOCODINGJS@
+    @LEAFLET_CLUSTERJS@
+    @LEAFLET_LAYERSEARCHJS@
+    @LEAFLET_LAYERFILTERJS@
+    @OL3_GEOJSONVARS@
+    @OL3_STYLEVARS@
+    @OL3_LAYERS@ 
+    @QGIS2WEBJS@
+    @OL3_WFSVARS@@MBGLJS_MEASURE@@MBGLJS_LOCATE@
+    <script>
+        // for calculating and displaying values in the level
+        const frs = json_Inwestycje_2["features"]   // features of the point layer
+        document.getElementById('l-inw').innerText += frs.length    // calculate the number of features, display them in #l-inw
+        let wInw = 0
+        for(const fr in frs)
+            wInw += frs[fr].properties.wartosc  // calculate the total value 'wartosc' of all features
+        let dInw = 0
+        for(const fr in frs)
+            dInw += frs[fr].properties.wartosc_dofinansowania   // calculate the total value of aid received 'wartosc_dofinanswoania' of all features
+        document.getElementById("w-inw").innerText += (wInw/100000).toFixed(1)  // display the total value in #w-inw in billion zlotys
+        document.getElementById("d-inw").innerText += (dInw/100000).toFixed(1)  // display the total value of aid in #d-inw in billion zlotys
+    </script>
+</body>
+</html>
