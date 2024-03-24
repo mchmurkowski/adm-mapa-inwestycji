@@ -172,7 +172,7 @@
                 dashArray: '',
                 lineCap: 'butt',
                 lineJoin: 'miter',
-                weight: 5.0, 
+                weight: 5.0,
                 fillOpacity: 0,
                 interactive: false,
             }
@@ -185,7 +185,7 @@
                 dashArray: '',
                 lineCap: 'butt',
                 lineJoin: 'miter',
-                weight: 1.0, 
+                weight: 1.0,
                 fillOpacity: 0,
                 interactive: false,
             }
@@ -207,13 +207,13 @@
         function pop_Inwestycje_2(feature, layer) {
             var popupContent = '<table>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['foto_sciezka'] !== null ? '<img src="images/' + String(feature.properties['foto_sciezka']).replace(/[\\\/:]/g, '_').trim() + '">' : '') + '</td>\
+                        <td colspan="2">' + (feature.properties['foto_sciezka'] !== null ? '<img width="300px" height="auto" src="images/' + String(feature.properties['foto_sciezka']).replace(/[\\\/:]/g, '_').trim() + '">' : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['kategoria'] !== null ? autolinker.link(feature.properties['kategoria'].toLocaleString()) : '') + '</td>\
+                        <td colspan="2"><h3 class="is-size-7 is-uppercase has-text-weight-semibold">' + (feature.properties['kategoria'] !== null ? autolinker.link(feature.properties['kategoria'].toLocaleString()) : '') + '</h3></td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['nazwa'] !== null ? autolinker.link(feature.properties['nazwa'].toLocaleString()) : '') + '</td>\
+                        <td colspan="2"><h2 class="is-size-5 has-text-weight-bold">' + (feature.properties['nazwa'] !== null ? autolinker.link(feature.properties['nazwa'].toLocaleString()) : '') + '</h2></td>\
                     </tr>\
                     <tr>\
                         <td colspan="2">' + (feature.properties['zakres'] !== null ? autolinker.link(feature.properties['zakres'].toLocaleString()) : '') + '</td>\
