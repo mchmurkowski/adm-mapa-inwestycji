@@ -23,7 +23,7 @@ Stworzenie wizualizacji mapowej inwestycji w gminie. Udokumentowanie procesu two
 
 ## Generator danych testowych
 
-[Generator danych testowych](https://github.com/mchmurkowski/adm-mapa-inwestycji/blob/main/qgis/generator/test-data-generator.ipynb) pozwala wygenerować testowy zbiór danych inwestycji w postaci pliku csv, który można wykorzystać przy tworzeniu projektu w QGIS.
+[Generator danych testowych](https://github.com/mchmurkowski/adm-mapa-inwestycji/blob/main/generator/test-data-generator.ipynb) pozwala wygenerować testowy zbiór danych inwestycji w postaci pliku csv, który można wykorzystać przy tworzeniu projektu w QGIS.
 
 ## Projekt QGIS
 
