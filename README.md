@@ -31,7 +31,7 @@ Przykładowy projekt QGIS dostępny jest w formie pliku GeoPackage (`adm-mapa-in
 
 ## Wzorzec
 
-Udostępniamy specjalny wzorzec [adm-mapa-inwestycji.html](https://github.com/mchmurkowski/adm-mapa-inwestycji/blob/main/qgis/template/adm-mapa-inwestycji.html), który został przygotowany na potrzeby projektu i jest wykorzystywany przez wtyczkę [qgis2web](https://github.com/qgis2web/qgis2web) do wygenerowania strony internetowej z webmapą. Wzorzec wykorzystuje bibliotekę CSS [Bulma](https://bulma.io/).
+Udostępniamy specjalny wzorzec [adm-mapa-inwestycji.html](https://github.com/mchmurkowski/adm-mapa-inwestycji/blob/main/template/adm-mapa-inwestycji.html), który został przygotowany na potrzeby projektu i jest wykorzystywany przez wtyczkę [qgis2web](https://github.com/qgis2web/qgis2web) do wygenerowania strony internetowej z webmapą. Wzorzec wykorzystuje bibliotekę CSS [Bulma](https://bulma.io/).
 
 > [!TIP]
 > W celu skorzystania ze wzorca należy go umieścić we właściwym folderze wtyczki qgis2web.
