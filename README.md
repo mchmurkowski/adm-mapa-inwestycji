@@ -23,15 +23,15 @@ Stworzenie wizualizacji mapowej inwestycji w gminie. Udokumentowanie procesu two
 
 ## Generator danych testowych
 
-[Generator danych testowych](https://github.com/mchmurkowski/adm-mapa-inwestycji/blob/main/generator/test-data-generator.ipynb) pozwala wygenerować testowy zbiór danych inwestycji w postaci pliku csv, który można wykorzystać przy tworzeniu projektu w QGIS.
+[Generator danych testowych](generator/test-data-generator.ipynb) pozwala wygenerować testowy zbiór danych inwestycji w postaci pliku csv, który można wykorzystać przy tworzeniu projektu w QGIS.
 
 ## Projekt QGIS
 
-Przykładowy projekt QGIS dostępny jest w formie pliku GeoPackage (`adm-mapa-inwestycji.gpkg`) w folderze [qgis](https://github.com/mchmurkowski/adm-mapa-inwestycji/tree/main/qgis).
+Przykładowy projekt QGIS dostępny jest w formie pliku GeoPackage (`adm-mapa-inwestycji.gpkg`) w folderze [qgis](qgis/).
 
 ## Wzorzec
 
-Udostępniamy specjalny wzorzec [adm-mapa-inwestycji.html](https://github.com/mchmurkowski/adm-mapa-inwestycji/blob/main/template/adm-mapa-inwestycji.html), który został przygotowany na potrzeby projektu i jest wykorzystywany przez wtyczkę [qgis2web](https://github.com/qgis2web/qgis2web) do wygenerowania strony internetowej z webmapą. Wzorzec wykorzystuje bibliotekę CSS [Bulma](https://bulma.io/).
+Udostępniamy specjalny wzorzec [adm-mapa-inwestycji.html](template/adm-mapa-inwestycji.html), który został przygotowany na potrzeby projektu i jest wykorzystywany przez wtyczkę [qgis2web](https://github.com/qgis2web/qgis2web) do wygenerowania strony internetowej z webmapą. Wzorzec wykorzystuje bibliotekę CSS [Bulma](https://bulma.io/).
 
 > [!TIP]
 > W celu skorzystania ze wzorca należy go umieścić we właściwym folderze wtyczki qgis2web.
