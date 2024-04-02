@@ -101,7 +101,7 @@
     @LEAFLET_LAYERFILTERJS@
     @OL3_GEOJSONVARS@
     @OL3_STYLEVARS@
-    @OL3_LAYERS@ 
+    @OL3_LAYERS@
     @QGIS2WEBJS@
     @OL3_WFSVARS@@MBGLJS_MEASURE@@MBGLJS_LOCATE@
     <script>
@@ -114,8 +114,8 @@
         let dInw = 0
         for(const fr in frs)
             dInw += frs[fr].properties.wartosc_dofinansowania   // calculate the total value of aid received 'wartosc_dofinanswoania' of all features
-        document.getElementById("w-inw").innerText += (wInw/100000).toFixed(1)  // display the total value in #w-inw in billion zlotys
-        document.getElementById("d-inw").innerText += (dInw/100000).toFixed(1)  // display the total value of aid in #d-inw in billion zlotys
+        document.getElementById("w-inw").innerText += (wInw/1000000).toFixed(1)  // display the total value in #w-inw in billion zlotys
+        document.getElementById("d-inw").innerText += (dInw/1000000).toFixed(1)  // display the total value of aid in #d-inw in billion zlotys
     </script>
 </body>
 </html>
